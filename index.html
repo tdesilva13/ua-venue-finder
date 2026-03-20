@@ -1422,13 +1422,13 @@ function updateHeatmap() {
       1.0: '#d73027',
     },
   }).addTo(map);
-  // leaflet-heat ignores the pane option, so move canvas manually
-  const overlayPane = map.getPane('overlayPane');
-  const heatmapPane = map.getPane('heatmapPane');
-  const heatCanvas = overlayPane.querySelector('canvas');
-  if (heatCanvas && heatmapPane) {
-    heatmapPane.appendChild(heatCanvas);
+  // Raise heatmap canvas above SVG markers with z-index
+  const heatCanvas = map.getPane('overlayPane').querySelector('canvas');
+  if (heatCanvas) {
+    heatCanvas.style.position = 'relative';
+    heatCanvas.style.zIndex = '650';
     heatCanvas.style.opacity = '0.6';
+    heatCanvas.style.pointerEvents = 'none';
   }
 }
 
