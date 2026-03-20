@@ -1023,24 +1023,85 @@
       }
     }
 
+    /* Mobile tab toggle bar - hidden on desktop */
+    .mobile-view-toggle {
+      display: none;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0;
+      z-index: 60;
+    }
+
+    .mobile-view-toggle button {
+      flex: 1;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-secondary);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mobile-view-toggle button.active {
+      color: var(--accent-primary);
+      border-bottom-color: var(--accent-primary);
+      background: rgba(200, 16, 46, 0.05);
+    }
+
     @media (max-width: 768px) {
+      .mobile-view-toggle {
+        display: flex;
+      }
+
       .container {
         flex-direction: column;
+        position: relative;
       }
 
       .sidebar {
         width: 100%;
-        height: auto;
-        max-height: 50%;
+        height: calc(100vh - 110px);
+        max-height: none;
         border-right: none;
-        border-bottom: 1px solid var(--border-color);
+        border-bottom: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 55;
+        display: none;
+      }
+
+      .sidebar.mobile-active {
+        display: flex;
       }
 
       .map-container {
         flex: 1;
+        width: 100%;
+        height: calc(100vh - 110px);
       }
 
-      .header-subtitle {
+      .map-container.mobile-hidden {
+        display: none;
+      }
+
+      .header {
+        padding: 10px 14px;
+      }
+
+      .header-content img {
+        height: 30px !important;
+      }
+
+      .header-title {
+        font-size: 16px;
+      }
+
+      .header-subtitle, .header-content > div > div:last-child {
         display: none;
       }
 
@@ -1054,29 +1115,61 @@
         bottom: 8px;
         right: 8px;
         font-size: 11px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .sidebar {
-        max-height: 40%;
+        max-width: 140px;
       }
 
-      .header-title {
-        font-size: 16px;
+      .sidebar-header {
+        padding: 12px;
       }
 
-      .header-icon {
-        font-size: 20px;
+      .form-label {
+        font-size: 10px;
+      }
+
+      .search-input input {
+        font-size: 14px;
+        padding: 10px 12px;
       }
 
       .filter-chips {
-        gap: 4px;
+        gap: 6px;
+      }
+
+      .filter-chip {
+        font-size: 12px;
+        padding: 8px 12px;
+      }
+
+      .venue-item {
+        padding: 12px;
+      }
+
+      .venue-name {
+        font-size: 13px;
+      }
+
+      .btn-search {
+        padding: 12px;
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .header-title {
+        font-size: 14px;
+      }
+
+      .header-content img {
+        height: 26px !important;
+      }
+
+      .header-content {
+        gap: 8px;
       }
 
       .filter-chip {
         font-size: 11px;
-        padding: 5px 8px;
+        padding: 6px 10px;
       }
 
       .venue-name {
@@ -1100,6 +1193,12 @@
       <div style="font-size: 11px; color: var(--text-secondary); font-weight: 500; margin-top: 2px;">Flyer Distribution & Outreach Planner for Operators</div>
     </div>
   </div>
+</div>
+
+<!-- Mobile View Toggle -->
+<div class="mobile-view-toggle" id="mobileViewToggle">
+  <button id="mobileMapBtn" class="active" onclick="switchMobileView('map')">Map View</button>
+  <button id="mobileListBtn" onclick="switchMobileView('list')">Search & List</button>
 </div>
 
 <div class="container">
@@ -1682,6 +1781,11 @@ function renderVenues() {
 
   updateRouteUI();
   updateHeatmap();
+
+  // Auto-switch to list view on mobile after first search
+  if (window.innerWidth <= 768 && filtered.length > 0) {
+    switchMobileView('list');
+  }
 }
 
 function toggleDetail(uid) {
@@ -1944,6 +2048,33 @@ document.getElementById('sortSelect').addEventListener('change', renderVenues);
 
 renderFilterChips();
 initMap();
+
+// ========== MOBILE VIEW TOGGLE ==========
+function switchMobileView(view) {
+  const sidebar = document.querySelector('.sidebar');
+  const mapContainer = document.querySelector('.map-container');
+  const mapBtn = document.getElementById('mobileMapBtn');
+  const listBtn = document.getElementById('mobileListBtn');
+
+  if (view === 'map') {
+    sidebar.classList.remove('mobile-active');
+    mapContainer.classList.remove('mobile-hidden');
+    mapBtn.classList.add('active');
+    listBtn.classList.remove('active');
+    // Force map to recalculate its size after becoming visible
+    setTimeout(() => { if (map) map.invalidateSize(); }, 100);
+  } else {
+    sidebar.classList.add('mobile-active');
+    mapContainer.classList.add('mobile-hidden');
+    listBtn.classList.add('active');
+    mapBtn.classList.remove('active');
+  }
+}
+
+// Handle orientation changes
+window.addEventListener('resize', () => {
+  if (map) setTimeout(() => map.invalidateSize(), 200);
+});
 </script>
 </body>
 </html>
