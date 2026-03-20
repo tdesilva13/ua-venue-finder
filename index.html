@@ -1411,7 +1411,6 @@ function updateHeatmap() {
     blur: 25,
     maxZoom: 15,
     max: 3.0,
-    pane: 'heatmapPane',
     gradient: {
       0.2: '#313695',
       0.4: '#4575b4',
@@ -1423,9 +1422,14 @@ function updateHeatmap() {
       1.0: '#d73027',
     },
   }).addTo(map);
-  // Make heatmap semi-transparent so markers remain visible underneath
-  const heatCanvas = map.getPane('heatmapPane').querySelector('canvas');
-  if (heatCanvas) heatCanvas.style.opacity = '0.6';
+  // leaflet-heat ignores the pane option, so move canvas manually
+  const overlayPane = map.getPane('overlayPane');
+  const heatmapPane = map.getPane('heatmapPane');
+  const heatCanvas = overlayPane.querySelector('canvas');
+  if (heatCanvas && heatmapPane) {
+    heatmapPane.appendChild(heatCanvas);
+    heatCanvas.style.opacity = '0.6';
+  }
 }
 
 function toggleHeatmap() {
