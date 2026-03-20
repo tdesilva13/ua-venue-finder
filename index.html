@@ -372,11 +372,17 @@
     }
 
     .filter-chip.active {
-      background: var(--accent-primary);
-      border-color: var(--accent-primary);
       color: white;
-      box-shadow: 0 4px 12px rgba(200, 16, 46, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
+
+    .filter-chip.active[data-cat="school"] { background: #2563EB; border-color: #2563EB; }
+    .filter-chip.active[data-cat="rec"] { background: #059669; border-color: #059669; }
+    .filter-chip.active[data-cat="community"] { background: #EA580C; border-color: #EA580C; }
+    .filter-chip.active[data-cat="sports"] { background: #0891B2; border-color: #0891B2; }
+    .filter-chip.active[data-cat="church"] { background: #7C3AED; border-color: #7C3AED; }
+    .filter-chip.active[data-cat="park"] { background: #D97706; border-color: #D97706; }
+    .filter-chip.active[data-cat="gym"] { background: #DB2777; border-color: #DB2777; }
 
     /* ===== TOOLBAR ===== */
     .toolbar {
@@ -1087,9 +1093,11 @@
 <!-- Header -->
 <div class="header">
   <div class="header-content">
-    <span class="header-icon">🏈</span>
-    <h1 class="header-title">UA Venue Finder</h1>
-    <span class="header-subtitle">Athletic Outreach & Recruitment</span>
+    <img src="UA FLAG WHITE RED - LIVE.png" alt="UA Flag Logo" style="height: 40px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
+    <div>
+      <h1 class="header-title">Community Venue Finder</h1>
+      <div style="font-size: 11px; color: var(--text-secondary); font-weight: 500; margin-top: 2px;">Flyer Distribution & Outreach Planner for Operators</div>
+    </div>
   </div>
 </div>
 
@@ -1104,9 +1112,9 @@
       <!-- Search Form -->
       <div class="form-section">
         <div class="form-group">
-          <label class="form-label">Location</label>
+          <label class="form-label">Enter Your Home Field</label>
           <div class="input-wrapper" style="position: relative;">
-            <input type="text" id="addressInput" placeholder="City, postal code, or address in Canada...">
+            <input type="text" id="addressInput" placeholder="Enter Your Home Field — Type an address and select a radius to discover schools, rec centers, and venues for flyer distribution">
             <div class="autocomplete-list" id="autocompleteList"></div>
           </div>
         </div>
@@ -1161,8 +1169,8 @@
       <!-- Empty State -->
       <div class="empty-state active" id="emptyState">
         <div class="empty-state-icon">📍</div>
-        <h3>No venues yet</h3>
-        <p>Search for a location to get started</p>
+        <h3>Enter Your Home Field</h3>
+        <p>Type an address and select a radius to discover schools, rec centers, and venues for flyer distribution</p>
       </div>
 
     </div>
@@ -1550,7 +1558,7 @@ function renderVenues() {
     detail.className = 'venue-detail';
     detail.id = `detail-${v.uid}`;
     const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(v.name + ' ' + (v.address || ''))}`;
-    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${v.lat},${v.lng}`;
+    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(v.name + (v.address ? ', ' + v.address : ''))}`;
     detail.innerHTML = `
       ${v.address ? `<div class="detail-row"><span class="label">Address</span><span>${escapeHtml(v.address)}</span></div>` : ''}
       ${v.phone ? `<div class="detail-row"><span class="label">Phone</span><a href="tel:${v.phone}">${escapeHtml(v.phone)}</a></div>` : ''}
@@ -1764,7 +1772,7 @@ function openRoute() {
   const ordered = getOptimizedStops();
   const origin = `${searchLat},${searchLng}`;
   const destination = origin;
-  const waypoints = ordered.map(v => `${v.lat},${v.lng}`).join('|');
+  const waypoints = ordered.map(v => encodeURIComponent(v.name + (v.address ? ', ' + v.address : ''))).join('|');
   const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&waypoints=${waypoints}&travelmode=driving`;
   window.open(url, '_blank');
 }
