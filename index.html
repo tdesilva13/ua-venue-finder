@@ -1411,6 +1411,7 @@ function updateHeatmap() {
     blur: 25,
     maxZoom: 15,
     max: 3.0,
+    pane: 'heatmapPane',
     gradient: {
       0.2: '#313695',
       0.4: '#4575b4',
@@ -1422,6 +1423,9 @@ function updateHeatmap() {
       1.0: '#d73027',
     },
   }).addTo(map);
+  // Make heatmap semi-transparent so markers remain visible underneath
+  const heatCanvas = map.getPane('heatmapPane').querySelector('canvas');
+  if (heatCanvas) heatCanvas.style.opacity = '0.6';
 }
 
 function toggleHeatmap() {
@@ -1441,6 +1445,10 @@ function initMap() {
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors', maxZoom: 18,
   }).addTo(map);
+  // Create a custom pane for the heatmap that renders above markers
+  map.createPane('heatmapPane');
+  map.getPane('heatmapPane').style.zIndex = 450;
+  map.getPane('heatmapPane').style.pointerEvents = 'none';
 }
 
 // ========== CATEGORY FILTER CHIPS ==========
